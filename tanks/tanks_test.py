@@ -85,3 +85,4 @@ image_ids = np.random.choice(dataset.image_ids, 4)
 for image_id in image_ids:
     image = dataset.load_image(image_id)
     mask, class_ids = dataset.load_mask(image_id)
+    print(np.shape(mask), class_ids)
