@@ -217,7 +217,7 @@ class TanksDataset(utils.Dataset):
     def image_reference(self, image_id):
         """Return the path of the image."""
         info = self.image_info[image_id]
-        if info["source"] == "nucleus":
+        if info["source"] == "tanks":
             return info["id"]
         else:
             super(self.__class__, self).image_reference(image_id)
@@ -230,13 +230,13 @@ class TanksDataset(utils.Dataset):
 def train(model, dataset_dir, subset):
     """Train the model."""
     # Training dataset.
-    dataset_train = NucleusDataset()
-    dataset_train.load_nucleus(dataset_dir, subset)
+    dataset_train = TanksDataset()
+    dataset_train.load_Tanks(dataset_dir, subset)
     dataset_train.prepare()
 
-    # Validation dataset
-    dataset_val = NucleusDataset()
-    dataset_val.load_nucleus(dataset_dir, "val")
+    # test dataset
+    dataset_val = TanksDataset()
+    dataset_val.load_Tanks(dataset_dir, "test")
     dataset_val.prepare()
 
     # Image augmentation
@@ -346,8 +346,8 @@ def detect(model, dataset_dir, subset):
     os.makedirs(submit_dir)
 
     # Read dataset
-    dataset = NucleusDataset()
-    dataset.load_nucleus(dataset_dir, subset)
+    dataset = TanksDataset()
+    dataset.load_Tanks(dataset_dir, subset)
     dataset.prepare()
     # Load over images
     submission = []
@@ -418,9 +418,9 @@ if __name__ == '__main__':
 
     # Configurations
     if args.command == "train":
-        config = NucleusConfig()
+        config = TanksConfig()
     else:
-        config = NucleusInferenceConfig()
+        config = TanksInferenceConfig()
     config.display()
 
     # Create model
