@@ -8,16 +8,16 @@ Usage: import the module (see Jupyter notebooks for examples), or run from
        the command line as such:
 
     # Train a new model starting from ImageNet weights
-    python3 tanks.py train --dataset=/path/to/dataset --subset=train --weights=imagenet
+    python tanks.py train --dataset=/path/to/dataset --subset=train --weights=imagenet
 
     # Train a new model starting from specific weights file
-    python3 tanks.py train --dataset=/path/to/dataset --subset=train --weights=/path/to/weights.h5
+    python tanks.py train --dataset=S:\Jakaria_Rabbi\Jakaria\test_scripts\Mask_RCNN_Test\datasets\train --subset=train --weights=S:\Jakaria_Rabbi\Jakaria\test_scripts\Mask_RCNN_Test\mask_rcnn_coco.h5
 
     # Resume training a model that you had trained earlier
-    python3 tanks.py train --dataset=/path/to/dataset --subset=train --weights=last
+    python tanks.py train --dataset=/path/to/dataset --subset=train --weights=last
 
     # Generate submission file
-    python3 tanks.py detect --dataset=/path/to/dataset --subset=train --weights=<last or /path/to/weights.h5>
+    python tanks.py detect --dataset=/path/to/dataset --subset=train --weights=<last or /path/to/weights.h5>
 """
 
 # Set matplotlib backend
@@ -80,7 +80,7 @@ class TanksConfig(Config):
     VALIDATION_STEPS = max(1, 24) // IMAGES_PER_GPU
 
     # Don't exclude based on confidence. Since we have two classes
-    # then 0.5 is the minimum anyway as it picks between nucleus and BG
+    # then 0.5 is the minimum anyway as it picks between tanks and BG
     DETECTION_MIN_CONFIDENCE = 0
 
     # Backbone network architecture
@@ -448,14 +448,15 @@ if __name__ == '__main__':
 
     # Load weights
     print("Loading weights ", weights_path)
-    if args.weights.lower() == "coco":
-        # Exclude the last layers because they require a matching
-        # number of classes
-        model.load_weights(weights_path, by_name=True, exclude=[
-            "mrcnn_class_logits", "mrcnn_bbox_fc",
-            "mrcnn_bbox", "mrcnn_mask"])
-    else:
-        model.load_weights(weights_path, by_name=True)
+
+    #if args.weights.lower() == "coco":
+    # Exclude the last layers because they require a matching
+    # number of classes
+    model.load_weights(weights_path, by_name=True, exclude=[
+        "mrcnn_class_logits", "mrcnn_bbox_fc",
+        "mrcnn_bbox", "mrcnn_mask"])
+    #else:
+        #model.load_weights(weights_path, by_name=True)
 
     # Train or evaluate
     if args.command == "train":
