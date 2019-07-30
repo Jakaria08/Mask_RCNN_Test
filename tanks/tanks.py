@@ -208,7 +208,8 @@ class TanksDataset(utils.Dataset):
         mask = []
         for img_file in glob.glob(mask_dir + '/*.png'):
             m = skimage.io.imread(img_file).astype(np.bool)
-            mask.append(m)
+            reshaped_image = np.amax(m,2)
+            mask.append(reshaped_image)
         mask = np.stack(mask, axis=-1)
         # Return mask, and array of class IDs of each instance. Since we have
         # one class ID, we return an array of ones
@@ -388,7 +389,7 @@ if __name__ == '__main__':
         description='Mask R-CNN for nuclei counting and segmentation')
     parser.add_argument("command",
                         metavar="<command>",
-                        help="'train' or 'detect'")
+                        help="'train' or 'test'")
     parser.add_argument('--dataset', required=False,
                         metavar="/path/to/dataset/",
                         help='Root directory of the dataset')
@@ -407,7 +408,7 @@ if __name__ == '__main__':
     # Validate arguments
     if args.command == "train":
         assert args.dataset, "Argument --dataset is required for training"
-    elif args.command == "detect":
+    elif args.command == "test":
         assert args.subset, "Provide --subset to run prediction on"
 
     print("Weights: ", args.weights)
@@ -461,8 +462,8 @@ if __name__ == '__main__':
     # Train or evaluate
     if args.command == "train":
         train(model, args.dataset, args.subset)
-    elif args.command == "detect":
+    elif args.command == "test":
         detect(model, args.dataset, args.subset)
     else:
         print("'{}' is not recognized. "
-              "Use 'train' or 'detect'".format(args.command))
+              "Use 'train' or 'test'".format(args.command))

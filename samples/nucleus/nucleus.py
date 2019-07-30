@@ -229,10 +229,12 @@ class NucleusDataset(utils.Dataset):
         mask_dir = os.path.join(os.path.dirname(os.path.dirname(info['path'])), "masks")
 
         # Read mask files from .png image
+        n = []
         mask = []
         for f in next(os.walk(mask_dir))[2]:
             if f.endswith(".png"):
                 m = skimage.io.imread(os.path.join(mask_dir, f)).astype(np.bool)
+                n = skimage.io.imread(os.path.join(mask_dir, f)).astype(np.bool)
                 mask.append(m)
         mask = np.stack(mask, axis=-1)
         # Return mask, and array of class IDs of each instance. Since we have
