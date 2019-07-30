@@ -158,7 +158,7 @@ class TanksDataset(utils.Dataset):
         """
         # Add classes. We have one class.
         # Naming the dataset Tanks, and the class Tanks
-        self.add_class("Tanks", 1, "Tanks")
+        self.add_class("tanks", 1, "tanks")
         image_ids = []
         # Which subset?
         # "val": from test folder
@@ -231,6 +231,7 @@ class TanksDataset(utils.Dataset):
 def train(model, dataset_dir, subset):
     """Train the model."""
     # Training dataset.
+    #print(dataset_dir,subset)
     dataset_train = TanksDataset()
     dataset_train.load_Tanks(dataset_dir, subset)
     dataset_train.prepare()
@@ -386,7 +387,7 @@ if __name__ == '__main__':
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description='Mask R-CNN for nuclei counting and segmentation')
+        description='Mask R-CNN for Tank counting and segmentation')
     parser.add_argument("command",
                         metavar="<command>",
                         help="'train' or 'test'")

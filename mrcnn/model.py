@@ -1673,6 +1673,8 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
     b = 0  # batch item index
     image_index = -1
     image_ids = np.copy(dataset.image_ids)
+    #print("IDS")
+    #print(len(image_ids))
     error_count = 0
     no_augmentation_sources = no_augmentation_sources or []
 
@@ -2322,7 +2324,8 @@ class MaskRCNN():
         }
         if layers in layer_regex.keys():
             layers = layer_regex[layers]
-
+        #print("IDS on train()")
+        #print(len(train_dataset.image_ids))
         # Data generators
         train_generator = data_generator(train_dataset, self.config, shuffle=True,
                                          augmentation=augmentation,
