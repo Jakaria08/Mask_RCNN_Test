@@ -11,7 +11,7 @@ Usage: import the module (see Jupyter notebooks for examples), or run from
     python tanks.py train --dataset=/path/to/dataset --subset=train --weights=imagenet
 
     # Train a new model starting from specific weights file
-    python tanks.py train --dataset=S:\Jakaria_Rabbi\Jakaria\test_scripts\Mask_RCNN_Test\datasets\train --subset=train --weights=S:\Jakaria_Rabbi\Jakaria\test_scripts\Mask_RCNN_Test\mask_rcnn_coco.h5
+    python tanks.py train --dataset=/shared/jakaria/Mask_RCNN_Test/dataset/ --subset=train --weights=/shared/jakaria/Mask_RCNN_Test/mask_rcnn_coco.h5
 
     # Resume training a model that you had trained earlier
     python tanks.py train --dataset=/path/to/dataset --subset=train --weights=last
