@@ -40,7 +40,7 @@ import skimage.io
 from imgaug import augmenters as iaa
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("../")
+ROOT_DIR = "/shared/jakaria/Mask_RCNN_Test"
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
