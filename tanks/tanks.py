@@ -11,7 +11,7 @@ Usage: import the module (see Jupyter notebooks for examples), or run from
     python tanks.py train --dataset=/path/to/dataset --subset=train --weights=imagenet
 
     # Train a new model starting from specific weights file
-    python tanks.py train --dataset=/shared/jakaria/Mask_RCNN_Test/dataset/ --subset=train --weights=/shared/jakaria/Mask_RCNN_Test/mask_rcnn_coco.h5
+    python /shared/jakaria/Mask_RCNN_Test/tanks/tanks.py train --dataset=/shared/jakaria/Mask_RCNN_Test/datasets/ --subset=train --weights=/shared/jakaria/Mask_RCNN_Test/mask_rcnn_coco.h5
 
     # Resume training a model that you had trained earlier
     python tanks.py train --dataset=/path/to/dataset --subset=train --weights=last
@@ -260,14 +260,14 @@ def train(model, dataset_dir, subset):
     print("Train network heads")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=20,
+                epochs=50,
                 augmentation=augmentation,
                 layers='heads')
 
     print("Train all layers")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=40,
+                epochs=100,
                 augmentation=augmentation,
                 layers='all')
 
