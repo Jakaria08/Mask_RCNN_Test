@@ -23,6 +23,8 @@ import keras.layers as KL
 import keras.engine as KE
 import keras.models as KM
 
+from keras.callbacks import Callback
+
 from mrcnn import utils
 
 # Requires TensorFlow 1.3+ and Keras 2.0.8+.
@@ -2555,6 +2557,10 @@ class MaskRCNN():
         masks: [H, W, N] instance binary masks
         """
         assert self.mode == "inference", "Create model in inference mode."
+
+        print("value batch"+str(self.config.BATCH_SIZE))
+        print("value image"+str(len(molded_images)))
+
         assert len(molded_images) == self.config.BATCH_SIZE,\
             "Number of images must be equal to BATCH_SIZE"
 

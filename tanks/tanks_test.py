@@ -1,47 +1,37 @@
 import os
 import sys
-import itertools
-import math
-import logging
-import json
-import re
 import random
+import math
+import re
 import time
-import concurrent.futures
 import numpy as np
+import tensorflow as tf
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-import matplotlib.lines as lines
-from matplotlib.patches import Polygon
-import imgaug
-from imgaug import augmenters as iaa
 
 # Root directory of the project
-ROOT_DIR = os.getcwd()
-if ROOT_DIR.endswith("tanks"):
-    # Go up two levels to the repo root
-    ROOT_DIR = os.path.dirname(ROOT_DIR)
+ROOT_DIR = os.path.abspath("../")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn.config import Config
 from mrcnn import utils
+from mrcnn import visualize
 from mrcnn.visualize import display_images
 import mrcnn.model as modellib
-from mrcnn import visualize
 from mrcnn.model import log
+
 import tanks
 
-
 # Directory to save logs and trained model
-MODEL_DIR = os.path.join(ROOT_DIR, "logs")
+LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 
-# Local path to trained weights file
-COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
-# Download COCO trained weights from Releases if needed
-if not os.path.exists(COCO_MODEL_PATH):
-    utils.download_trained_weights(COCO_MODEL_PATH)
+# Dataset directory
+DATASET_DIR = os.path.join(ROOT_DIR, "datasets")
+
+# Inference Configuration
+config = tanks.TanksConfig()
+config.display()
 
 
 # Dataset directory
@@ -54,35 +44,78 @@ class NoResizeConfig(tanks.TanksConfig):
 
 config = NoResizeConfig()
 
-def get_ax(rows=1, cols=1, size=8):
+# Device to load the neural network on.
+# Useful if you're training a model on the same
+# machine, in which case use CPU and leave the
+# GPU for training.
+DEVICE = "/cpu:0"  # /cpu:0 or /gpu:0
+
+# Inspect the model in training or inference modes
+# values: 'inference' or 'training'
+# Only inference mode is supported right now
+TEST_MODE = "inference"
+
+def get_ax(rows=1, cols=1, size=16):
     """Return a Matplotlib Axes array to be used in
     all visualizations in the notebook. Provide a
     central point to control graph sizes.
 
-    Change the default size attribute to control the size
-    of rendered images
+    Adjust the size attribute to control how big to render images
     """
-    _, ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))
+    fig, ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))
+    fig.tight_layout()
     return ax
 
-# Load dataset
+# Load validation dataset
 dataset = tanks.TanksDataset()
-#     train: loads train
-#     val: loads validation images
-dataset.load_Tanks(DATASET_DIR, subset="train")
-
-# Must call before using the dataset
+dataset.load_Tanks(DATASET_DIR, "test")
 dataset.prepare()
 
-print("Image Count: {}".format(len(dataset.image_ids)))
-print("Class Count: {}".format(dataset.num_classes))
-for i, info in enumerate(dataset.class_info):
-    print("{:3}. {:50}".format(i, info['name']))
+print("Images: {}\nClasses: {}".format(len(dataset.image_ids), dataset.class_names))
 
 
-# Load and display random samples
-image_ids = np.random.choice(dataset.image_ids, 4)
-for image_id in image_ids:
-    image = dataset.load_image(image_id)
-    mask, class_ids = dataset.load_mask(image_id)
-    print(np.shape(mask), class_ids)
+# Create model in inference mode
+with tf.device(DEVICE):
+    model = modellib.MaskRCNN(mode="inference",
+                              model_dir=LOGS_DIR,
+                              config=config)
+
+# Path to a specific weights file
+# weights_path = "/path/to/mask_rcnn_nucleus.h5"
+
+# Or, load the last model you trained
+weights_path = "mask_rcnn_tanks_0087.h5"
+
+# Load weights
+print("Loading weights ", weights_path)
+model.load_weights(weights_path, by_name=True)
+
+image_id = random.choice(dataset.image_ids)
+image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+    modellib.load_image_gt(dataset, config, image_id, use_mini_mask=False)
+info = dataset.image_info[image_id]
+print("image ID: {}.{} ({}) {}".format(info["source"], info["id"], image_id,
+                                       dataset.image_reference(image_id)))
+print("Original image shape: ", modellib.parse_image_meta(image_meta[np.newaxis,...])["original_image_shape"][0])
+
+# Run object detection
+results = model.detect_molded(np.expand_dims(image, 0), np.expand_dims(image_meta, 0), verbose=1)
+
+# Display results
+r = results[0]
+log("gt_class_id", gt_class_id)
+log("gt_bbox", gt_bbox)
+log("gt_mask", gt_mask)
+
+# Compute AP over range 0.5 to 0.95 and print it
+utils.compute_ap_range(gt_bbox, gt_class_id, gt_mask,
+                       r['rois'], r['class_ids'], r['scores'], r['masks'],
+                       verbose=1)
+
+visualize.display_differences(
+    image,
+    gt_bbox, gt_class_id, gt_mask,
+    r['rois'], r['class_ids'], r['scores'], r['masks'],
+    dataset.class_names, ax=get_ax(),
+    show_box=False, show_mask=False,
+    iou_threshold=0.5, score_threshold=0.5)
