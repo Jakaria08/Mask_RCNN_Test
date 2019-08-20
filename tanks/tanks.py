@@ -70,7 +70,7 @@ class TanksConfig(Config):
     NAME = "tanks"
 
     # Adjust depending on your GPU memory
-    IMAGES_PER_GPU = 6
+    IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # Background + tanks
